@@ -6,29 +6,13 @@ os.environ['TL_BACKEND'] = 'paddle'
 # import paddle.nn.functional as F
 import tensorlayerx as tlx
 import numpy as np
-from PIL import Image
+from utils.load_image import load_image
 
 EPOCH_NUM = 10
 BATCH_SIZE = 8  # 64
 BATCH_NUM = 4  # 100
 IMAGE_SHAPE = [3, 224, 224]
 CLASS_NUM = 1000
-
-
-def load_image_pd(image_path):
-    """ data format: nchw """
-    from paddle import to_tensor
-
-    img = Image.open(image_path).convert('RGB')
-    img = img.resize((224, 224), Image.ANTIALIAS)
-    img = np.array(img).astype(np.float32)
-    img = img.transpose((2, 0, 1))  # CHW
-    # img = img[(2, 1, 0), :, :]  # BGR
-    # img = np.expand_dims(img, 0)
-    # # img = img.flatten()
-    img = img / 255.0
-    # img = to_tensor(img)
-    return img
 
 
 # class RandomDataset(paddle.io.Dataset):
@@ -59,13 +43,12 @@ def CatDogGenerator(mode="train"):  # TODO - 原生实现, 不用变
             elif label_name == "dog":
                 label = 1
             image_path = os.path.join(base_dir, image_path)
-            img = load_image_pd(image_path)
+            img = load_image(image_path)
             images.append(img)
             labels.append(label)
             assert len(images) == len(labels)
     else:
         pass
-
     index_list = list(range(len(images)))
 
     def data_generator():

@@ -5,30 +5,13 @@ import paddle
 # paddle.disable_static()  # TODO
 import paddle.nn.functional as F
 import numpy as np
-from PIL import Image
-# from utils.load_image import load_image_pd
+from utils.load_image import load_image
 
 EPOCH_NUM = 10
 BATCH_SIZE = 8  # 64
 BATCH_NUM = 4  # 100
 IMAGE_SHAPE = [3, 224, 224]
 CLASS_NUM = 1000
-
-
-def load_image_pd(image_path):
-    """ data format: nchw """
-    from paddle import to_tensor
-
-    img = Image.open(image_path).convert('RGB')
-    img = img.resize((224, 224), Image.ANTIALIAS)
-    img = np.array(img).astype(np.float32)
-    img = img.transpose((2, 0, 1))  # CHW
-    # img = img[(2, 1, 0), :, :]  # BGR
-    # img = np.expand_dims(img, 0)
-    # # img = img.flatten()
-    img = img / 255.0
-    # img = to_tensor(img)
-    return img
 
 
 class RandomDataset(paddle.io.Dataset):
@@ -58,13 +41,12 @@ def CatDogGenerator(mode="train"):
             elif label_name == "dog":
                 label = 1
             image_path = os.path.join(base_dir, image_path)
-            img = load_image_pd(image_path)
+            img = load_image(image_path)
             images.append(img)
             labels.append(label)
             assert len(images) == len(labels)
     else:
         pass
-
     index_list = list(range(len(images)))
 
     def data_generator():
@@ -83,37 +65,6 @@ def CatDogGenerator(mode="train"):
                 yield np.array(images_list), np.array(labels_list)
 
     return data_generator
-
-
-# class CatDogDataset(paddle.io.Dataset):
-#     def __init__(self, num_samples, mode="train"):
-#         self.num_samples = num_samples
-#         self.mode = mode
-#
-#     def __getitem__(self, idx):
-#         if self.mode == "train":
-#             base_dir = f"D:/DATA/vision-data/dogs-vs-cats-cut/{self.mode}"
-#             images_paths = os.listdir(base_dir)
-#             label = -1  # not defined
-#             for i, image_path in enumerate(images_paths):
-#                 label_name = image_path.split(".")[0]
-#                 if label_name == "cat":
-#                     label = 0
-#                 elif label_name == "dog":
-#                     label = 1
-#                 image_path = os.path.join(base_dir, image_path)
-#                 img = load_image_pd(image_path)
-#                 yield np.array(img), np.array(label).astype('int64')
-#         else:
-#             base_dir = f"D:/DATA/vision-data/dogs-vs-cats-cut/{self.mode}"
-#             images_paths = os.listdir(base_dir)
-#             for i, image_path in enumerate(images_paths):
-#                 image_path = os.path.join(base_dir, image_path)
-#                 img = load_image_pd(image_path)
-#                 yield np.array(img)
-#
-#     def __len__(self):
-#         return self.num_samples
 
 
 class ModelTrainPaddle(object):
