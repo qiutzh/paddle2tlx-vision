@@ -111,7 +111,7 @@ class Inception(nn.Module):
 
         # cat = paddle.concat([conv1, conv3, conv5, convprj], axis=1)
         cat = tlx.concat([conv1, conv3, conv5, convprj], axis=1)
-        print('### cat shape:', cat.shape)
+        # print('### cat shape:', cat.shape)
         # cat = F.relu(cat)
         cat = ReLU()(cat)
         return cat

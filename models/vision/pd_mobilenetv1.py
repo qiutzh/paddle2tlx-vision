@@ -193,7 +193,7 @@ class MobileNetV1(nn.Layer):
         x = self.conv1(x)  # [1, 32, 112, 112]
         for dws in self.dwsl:
             x = dws(x)
-            print(x.name, x.shape)
+            # print(x.name, x.shape)
 
         if self.with_pool:
             x = self.pool2d_avg(x)

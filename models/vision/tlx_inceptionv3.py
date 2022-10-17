@@ -25,7 +25,7 @@ import tensorlayerx.nn as nn
 # from paddle.nn import Linear, Dropout
 from tensorlayerx.nn import Linear, Dropout
 # from paddle.nn import AdaptiveAvgPool2D, MaxPool2D, AvgPool2D
-from tensorlayerx.nn import AdaptiveMeanPool2d, MaxPool2d, MeanPool2d
+from tensorlayerx.nn import AdaptiveMeanPool2d, AdaptiveAvgPool2d, MaxPool2d, MeanPool2d, AvgPool2d
 from paddle.fluid.param_attr import ParamAttr
 
 from paddle.utils.download import get_weights_path_from_url
@@ -130,10 +130,10 @@ class InceptionA(nn.Module):
         #                              stride=1,
         #                              padding=1,
         #                              exclusive=False)
-        self.branch_pool = MeanPool2d(kernel_size=3,
-                                      stride=1,
-                                      padding=1,
-                                      data_format='channels_first')
+        self.branch_pool = AvgPool2d(kernel_size=3,
+                                     stride=1,
+                                     padding=1,
+                                     data_format='channels_first')
         self.branch_pool_conv = ConvNormActivation(in_channels=num_channels,
                                                    out_channels=pool_features,
                                                    kernel_size=1,
@@ -262,11 +262,11 @@ class InceptionC(nn.Module):
         #                              stride=1,
         #                              padding=1,
         #                              exclusive=False)
-        self.branch_pool = MeanPool2d(kernel_size=3,
-                                      stride=1,
-                                      padding=1,
-                                      # exclusive=False,
-                                      data_format='channels_first')
+        self.branch_pool = AvgPool2d(kernel_size=3,
+                                     stride=1,
+                                     padding=1,
+                                     # exclusive=False,
+                                    data_format='channels_first')
         self.branch_pool_conv = ConvNormActivation(in_channels=num_channels,
                                                    out_channels=192,
                                                    kernel_size=1,
@@ -403,11 +403,11 @@ class InceptionE(nn.Module):
         #                              stride=1,
         #                              padding=1,
         #                              exclusive=False)
-        self.branch_pool = MeanPool2d(kernel_size=3,
-                                      stride=1,
-                                      padding=1,
-                                      # exclusive=False,
-                                      data_format='channels_first')
+        self.branch_pool = AvgPool2d(kernel_size=3,
+                                     stride=1,
+                                     padding=1,
+                                     # exclusive=False,
+                                     data_format='channels_first')
         self.branch_pool_conv = ConvNormActivation(in_channels=num_channels,
                                                    out_channels=192,
                                                    kernel_size=1,
@@ -483,7 +483,8 @@ class InceptionV3(nn.Module):
 
         self.inception_stem = InceptionStem()
 
-        self.inception_block_list = nn.LayerList()  # TODO - bug
+        # self.inception_block_list = nn.LayerList()  # TODO - bug
+        self.inception_block_list = []  # TODO - bug
         for i in range(len(inception_a_list[0])):
             inception_a = InceptionA(inception_a_list[0][i],
                                      inception_a_list[1][i])
@@ -508,7 +509,7 @@ class InceptionV3(nn.Module):
 
         if with_pool:
             # self.avg_pool = AdaptiveAvgPool2D(1)
-            self.avg_pool = AdaptiveMeanPool2d(output_size=1, data_format='channels_first')
+            self.avg_pool = AdaptiveAvgPool2d(output_size=1, data_format='channels_first')
 
         if num_classes > 0:
             # self.dropout = Dropout(p=0.2, mode="downscale_in_infer")

@@ -54,7 +54,7 @@ class InferenceModelDiffTest(unittest.TestCase):
         model_pd = pd_squeezenet.squeezenet1_1(pretrained=True)
         calc_diff(model_tlx, model_pd, image_file)
 
-    # large diff
+    # pass
     def test_resnet(self):
         from models.vision import tlx_resnet, pd_resnet
 
@@ -117,13 +117,13 @@ class InferenceModelDiffTest(unittest.TestCase):
         model_pd = pd_mobilenetv2.mobilenet_v2(pretrained=True)
         calc_diff(model_tlx, model_pd, image_file)
 
-        model_tlx = tlx_mobilenetv3.mobilenet_v3_small(pretrained=True)
-        model_pd = tlx_mobilenetv3.mobilenet_v3_small(pretrained=True)
-        calc_diff(model_tlx, model_pd, image_file)
-
-        model_tlx = tlx_mobilenetv3.mobilenet_v3_large(pretrained=True)
-        model_pd = pd_mobilenetv3.mobilenet_v3_large(pretrained=True)
-        calc_diff(model_tlx, model_pd, image_file)
+        # model_tlx = tlx_mobilenetv3.mobilenet_v3_small(pretrained=True)
+        # model_pd = tlx_mobilenetv3.mobilenet_v3_small(pretrained=True)
+        # calc_diff(model_tlx, model_pd, image_file)
+        #
+        # model_tlx = tlx_mobilenetv3.mobilenet_v3_large(pretrained=True)
+        # model_pd = pd_mobilenetv3.mobilenet_v3_large(pretrained=True)
+        # calc_diff(model_tlx, model_pd, image_file)
 
     def test_inception(self):
         from models.vision import tlx_inceptionv3
@@ -133,6 +133,7 @@ class InferenceModelDiffTest(unittest.TestCase):
         model_pd = tlx_inceptionv3.inception_v3(pretrained=True)
         calc_diff(model_tlx, model_pd, image_file)
 
+    # pass
     def test_shufflenet(self):
         from models.vision import tlx_shufflenetv2, pd_shufflenetv2
 
@@ -163,6 +164,26 @@ class InferenceModelDiffTest(unittest.TestCase):
 
         model_tlx = tlx_shufflenetv2.shufflenet_v2_x0_25(pretrained=True)
         model_pd = pd_shufflenetv2.shufflenet_v2_x0_25(pretrained=True)
+        calc_diff(model_tlx, model_pd, image_file)
+
+    def test_darknet(self):
+        from models.vision import tlx_darknet53, pd_darknet53
+
+        image_file = "images/dog.jpeg"
+        model_tlx = tlx_darknet53.darknet53(pretrained=True)
+        model_pd = pd_darknet53.darknet53(pretrained=True)
+        calc_diff(model_tlx, model_pd, image_file)
+
+    def test_rednet(self):
+        from models.vision import tlx_rednet, pd_rednet
+
+        image_file = "images/dog.jpeg"
+        model_tlx = tlx_rednet.RedNet50(pretrained=True)
+        model_pd = pd_rednet.RedNet50(pretrained=True)
+        calc_diff(model_tlx, model_pd, image_file)
+
+        model_tlx = tlx_rednet.RedNet101(pretrained=True)
+        model_pd = pd_rednet.RedNet101(pretrained=True)
         calc_diff(model_tlx, model_pd, image_file)
 
 

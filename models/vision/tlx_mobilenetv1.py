@@ -96,7 +96,7 @@ class MobileNetV1(nn.Module):
                                         out_channels=int(32 * scale),
                                         kernel_size=3,
                                         stride=2,
-                                        padding=1)
+                                        padding=1)  # [1, 32, 112, 112]
 
         dws21 = self.add_sublayer(sublayer=DepthwiseSeparable(in_channels=int(
             32 * scale),
@@ -201,7 +201,7 @@ class MobileNetV1(nn.Module):
         x = self.conv1(x)  # [1, 32, 112, 112]
         for dws in self.dwsl:
             x = dws(x)
-            print(x.name, x.shape)
+            # print(x.name, x.shape)
 
         if self.with_pool:
             x = self.pool2d_avg(x)
@@ -226,6 +226,7 @@ def _mobilenet(arch, pretrained=False, **kwargs):
         param = paddle.load(weight_path)
         # model.load_dict(param)
         restore_model(param, model)
+
 
     return model
 

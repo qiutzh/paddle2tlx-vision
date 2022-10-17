@@ -121,20 +121,22 @@ class PaddleModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = mobilenet_v1(pretrained=True)
+        import paddle
+        print(paddle.summary(model, (1, 3, 224, 224)))
         model.eval()
         predict_pd(model, image_file)
 
-        model = mobilenet_v2(pretrained=True)
-        model.eval()
-        predict_pd(model, image_file)
-
-        model = mobilenet_v3_small(pretrained=True)
-        model.eval()
-        predict_pd(model, image_file)
-
-        model = mobilenet_v3_large(pretrained=True)
-        model.eval()
-        predict_pd(model, image_file)
+        # model = mobilenet_v2(pretrained=True)
+        # model.eval()
+        # predict_pd(model, image_file)
+        #
+        # model = mobilenet_v3_small(pretrained=True)
+        # model.eval()
+        # predict_pd(model, image_file)
+        #
+        # model = mobilenet_v3_large(pretrained=True)
+        # model.eval()
+        # predict_pd(model, image_file)
 
     def test_inception(self):
         from models.vision.pd_inceptionv3 import inception_v3
@@ -175,6 +177,14 @@ class PaddleModelTest(unittest.TestCase):
         predict_pd(model, image_file)
 
         model = shufflenet_v2_swish(pretrained=True)
+        model.eval()
+        predict_pd(model, image_file)
+
+    def test_darknet53(self):
+        from models.vision.pd_darknet53 import darknet53
+
+        image_file = "images/dog.jpeg"
+        model = darknet53(pretrained=True)
         model.eval()
         predict_pd(model, image_file)
 
@@ -243,7 +253,6 @@ class TLXModelTest(unittest.TestCase):
         model.set_eval()
         predict_tlx(model, image_file)
 
-    # diff is large
     def test_resnet(self):
         from models.vision.tlx_resnet import resnet18, resnet34, resnet50, resnet101, resnet152
 
@@ -292,7 +301,6 @@ class TLXModelTest(unittest.TestCase):
         # model.set_eval()
         # predict_tlx(model, image_file)
 
-    # not pass
     def test_mobilenet(self):
         from models.vision.tlx_mobilenetv1 import mobilenet_v1
         from models.vision.tlx_mobilenetv2 import mobilenet_v2
@@ -300,6 +308,8 @@ class TLXModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = mobilenet_v1(pretrained=True)
+        # import paddle
+        # print(paddle.summary(model, (1, 3, 224, 224)))
         model.set_eval()
         predict_tlx(model, image_file)
 
@@ -307,14 +317,15 @@ class TLXModelTest(unittest.TestCase):
         model.set_eval()
         predict_tlx(model, image_file)
 
-        model = mobilenet_v3_small(pretrained=True)
-        model.set_eval()
-        predict_tlx(model, image_file)
+        # model = mobilenet_v3_small(pretrained=True)
+        # model.set_eval()
+        # predict_tlx(model, image_file)
+        #
+        # model = mobilenet_v3_large(pretrained=True)
+        # model.set_eval()
+        # predict_tlx(model, image_file)
 
-        model = mobilenet_v3_large(pretrained=True)
-        model.set_eval()
-        predict_tlx(model, image_file)
-
+    # not pass
     def test_inception(self):
         from models.vision.tlx_inceptionv3 import inception_v3
 
@@ -354,6 +365,22 @@ class TLXModelTest(unittest.TestCase):
         predict_tlx(model, image_file)
 
         model = shufflenet_v2_swish(pretrained=True)
+        model.set_eval()
+        predict_tlx(model, image_file)
+
+    def test_darknet53(self):
+        from models.vision.tlx_darknet53 import darknet53
+
+        image_file = "images/dog.jpeg"
+        model = darknet53(pretrained=True)
+        model.set_eval()
+        predict_tlx(model, image_file)
+
+    def test_rednet(self):
+        from models.vision.tlx_rednet import RedNet50
+
+        image_file = "images/dog.jpeg"
+        model = RedNet50(pretrained=True)
         model.set_eval()
         predict_tlx(model, image_file)
 

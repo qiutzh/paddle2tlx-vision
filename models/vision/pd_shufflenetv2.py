@@ -121,7 +121,7 @@ class InvertedResidual(nn.Layer):
         x1, x2 = paddle.split(
             inputs,
             num_or_sections=[inputs.shape[1] // 2, inputs.shape[1] // 2],
-            axis=1)
+            axis=1)  # [1, 12, 28, 28] [1, 12, 28, 28]
         x2 = self._conv_pw(x2)
         x2 = self._conv_dw(x2)
         x2 = self._conv_linear(x2)

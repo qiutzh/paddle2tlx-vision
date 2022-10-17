@@ -130,7 +130,7 @@ class ModelTrainTLX(object):
 
 
 if __name__ == '__main__':
-    # from models.vision.tlx_vgg import vgg16
+    from models.vision.tlx_vgg import vgg16
     from models.vision.tlx_googlenet import googlenet
     from models.vision.tlx_alexnet import alexnet
     from models.vision.tlx_squeezenet import squeezenet1_0

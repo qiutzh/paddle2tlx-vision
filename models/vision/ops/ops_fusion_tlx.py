@@ -1,7 +1,7 @@
-from tensorlayerx.nn import Conv2d, Sequential, ReLU, BatchNorm2d
+from tensorlayerx.nn import Conv2d, GroupConv2d, Sequential, ReLU, BatchNorm2d
 
 
-class ConvNormActivation(Sequential):  # 分离出的代码
+class ConvNormActivation(Sequential):  # vision/ops.py
     """
     Configurable block used for Convolution-Normalzation-Activation blocks.
     This code is based on the torchvision code with modifications.
@@ -47,15 +47,16 @@ class ConvNormActivation(Sequential):  # 分离出的代码
             #        dilation=dilation,
             #        groups=groups,
             #        bias_attr=bias)
-            Conv2d(in_channels=in_channels,
-                   out_channels=out_channels,
-                   kernel_size=kernel_size,
-                   stride=stride,
-                   padding=padding,
-                   dilation=(dilation, dilation),
-                   b_init=bias,  # TODO
-                   data_format='channels_first',
-                   )
+            GroupConv2d(in_channels=in_channels,
+                        out_channels=out_channels,
+                        kernel_size=kernel_size,
+                        stride=stride,
+                        padding=padding,
+                        dilation=(dilation, dilation),
+                        n_group=groups,
+                        b_init=bias,
+                        data_format='channels_first',
+                        )
         ]
         if norm_layer is not None:
             # layers.append(norm_layer(out_channels))

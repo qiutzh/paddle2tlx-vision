@@ -129,14 +129,14 @@ class InvertedResidual(nn.Module):
             activation_layer=activation_layer)
 
     def forward(self, inputs):
-        # x1, x2 = paddle.split(
-        #     inputs,
-        #     num_or_sections=[inputs.shape[1] // 2, inputs.shape[1] // 2],
-        #     axis=1)
-        x1, x2 = tlx.ops.split(
+        x1, x2 = paddle.split(
             inputs,
-            num_or_size_splits=[inputs.shape[1] // 2, inputs.shape[1] // 2],
+            num_or_sections=[inputs.shape[1] // 2, inputs.shape[1] // 2],
             axis=1)
+        # x1, x2 = tlx.ops.split(
+        #     inputs,
+        #     num_or_size_splits=[inputs.shape[1] // 2, inputs.shape[1] // 2],
+        #     axis=1)  # TODO - none return value
         x2 = self._conv_pw(x2)
         x2 = self._conv_dw(x2)
         x2 = self._conv_linear(x2)
