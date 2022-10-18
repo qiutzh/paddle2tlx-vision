@@ -24,7 +24,7 @@ import numpy as np
 import tensorlayerx as tlx
 import tensorlayerx.nn as nn
 from paddle.utils.download import get_weights_path_from_url
-from utils.load_model import restore_model
+from utils.load_model_tlx import restore_model
 
 
 __all__ = []

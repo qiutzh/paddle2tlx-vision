@@ -31,7 +31,7 @@ from tensorlayerx.nn import MaxPool2d, MeanPool2d, AvgPool2d, AdaptiveMeanPool2d
 from tensorlayerx.nn.initializers import random_uniform
 # from paddle.fluid.param_attr import ParamAttr
 from paddle.utils.download import get_weights_path_from_url
-from utils.load_model import restore_model
+from utils.load_model_tlx import restore_model
 
 __all__ = []
 
@@ -207,54 +207,54 @@ class GoogLeNet(nn.Module):
             self._out2 = Linear(in_features=1024, out_features=num_classes, W_init=xavier(1024, 1))
 
     def forward(self, inputs):
-        x = self._conv(inputs)  # (1, 64, 112, 112)
-        x = self._pool(x)  # (1, 64, 55, 55) <- (1, 64, 56, 56)
-        x = self._conv_1(x)  # (1, 64, 55, 55)
-        x = self._conv_2(x)  # (1, 192, 55, 55)
-        x = self._pool(x)  # (1, 192, 27, 27)
+        x = self._conv(inputs)
+        x = self._pool(x)
+        x = self._conv_1(x)
+        x = self._conv_2(x)
+        x = self._pool(x)
 
-        x = self._ince3a(x)  # (1, 256, 27, 27)
-        x = self._ince3b(x)  # (1, 480, 27, 27)
-        x = self._pool(x)  # (1, 480, 13, 13)
+        x = self._ince3a(x)
+        x = self._ince3b(x)
+        x = self._pool(x)
 
-        ince4a = self._ince4a(x)  # (1, 512, 13, 13)
-        x = self._ince4b(ince4a)  # (1, 512, 13, 13)
-        x = self._ince4c(x)  # (1, 512, 13, 13)
-        ince4d = self._ince4d(x)  # (1, 528, 13, 13)
-        x = self._ince4e(ince4d)  # (1, 832, 13, 13)
-        x = self._pool(x)  # (1, 832, 6, 6)
+        ince4a = self._ince4a(x)
+        x = self._ince4b(ince4a)
+        x = self._ince4c(x)
+        ince4d = self._ince4d(x)
+        x = self._ince4e(ince4d)
+        x = self._pool(x)
 
-        x = self._ince5a(x)  # (1, 832, 6, 6)
-        ince5b = self._ince5b(x)  # (1, 1024, 6, 6)
+        x = self._ince5a(x)
+        ince5b = self._ince5b(x)
 
         out, out1, out2 = ince5b, ince4a, ince4d
 
         if self.with_pool:
-            out = self._pool_5(out)  # (1, 1024, 1, 1)
-            out1 = self._pool_o1(out1)  # (1, 512, 3, 3)
-            out2 = self._pool_o2(out2)  # (1, 528, 3, 3)
+            out = self._pool_5(out)  # same
+            out1 = self._pool_o1(out1)
+            out2 = self._pool_o2(out2)
 
         if self.num_classes > 0:
-            out = self._drop(out)
+            # out = self._drop(out)
             # out = paddle.squeeze(out, axis=[2, 3])
             out = tlx.ops.squeeze(out, axis=[2, 3])
-            out = self._fc_out(out)  # (1, 1000)
+            out = self._fc_out(out)
 
-            out1 = self._conv_o1(out1)  # (1, 128, 3, 3)
-            # out1 = paddle.flatten(out1, start_axis=1, stop_axis=-1)  # (1, 1152)
+            out1 = self._conv_o1(out1)
+            # out1 = paddle.flatten(out1, start_axis=1, stop_axis=-1)
             out1 = nn.Flatten()(out1)
-            out1 = self._fc_o1(out1)  # (1, 1024)
+            out1 = self._fc_o1(out1)
             # out1 = F.relu(out1)
             out1 = ReLU()(out1)
-            out1 = self._drop_o1(out1)
-            out1 = self._out1(out1)  # (1, 1000)
+            # out1 = self._drop_o1(out1)
+            out1 = self._out1(out1)
 
-            out2 = self._conv_o2(out2)  # (1, 128, 3, 3)
-            # out2 = paddle.flatten(out2, start_axis=1, stop_axis=-1)  # (1, 1152)
+            out2 = self._conv_o2(out2)
+            # out2 = paddle.flatten(out2, start_axis=1, stop_axis=-1)
             out2 = nn.Flatten()(out2)
             out2 = self._fc_o2(out2)
-            out2 = self._drop_o2(out2)
-            out2 = self._out2(out2)  # (1, 1000)
+            # out2 = self._drop_o2(out2)
+            out2 = self._out2(out2)
 
         return [out, out1, out2]
 

@@ -25,13 +25,25 @@ class InferenceModelDiffTest(unittest.TestCase):
         model_pd = pd_vgg.vgg19(pretrained=True)
         calc_diff(model_tlx, model_pd, image_file)
 
-    # small diff
     def test_alexnet(self):
         from models.vision import tlx_alexnet, pd_alexnet
 
         image_file = "images/dog.jpeg"
         model_tlx = tlx_alexnet.alexnet(pretrained=True)
         model_pd = pd_alexnet.alexnet(pretrained=True)
+        calc_diff(model_tlx, model_pd, image_file)
+
+    def test_inception(self):
+        from models.vision import tlx_inceptionv3, pd_inceptionv3
+        from models.vision import tlx_inception_v4, pd_inception_v4
+
+        image_file = "images/dog.jpeg"
+        # model_tlx = tlx_inceptionv3.inception_v3(pretrained=True)  # TODO - result is random
+        # model_pd = pd_inceptionv3.inception_v3(pretrained=True)
+        # calc_diff(model_tlx, model_pd, image_file)
+
+        model_tlx = tlx_inception_v4.InceptionV4(pretrained=True)
+        model_pd = pd_inception_v4.InceptionV4(pretrained=True)
         calc_diff(model_tlx, model_pd, image_file)
 
     def test_googlenet(self):
@@ -54,7 +66,6 @@ class InferenceModelDiffTest(unittest.TestCase):
         model_pd = pd_squeezenet.squeezenet1_1(pretrained=True)
         calc_diff(model_tlx, model_pd, image_file)
 
-    # pass
     def test_resnet(self):
         from models.vision import tlx_resnet, pd_resnet
 
@@ -103,7 +114,7 @@ class InferenceModelDiffTest(unittest.TestCase):
         model_pd = pd_densenet.densenet264(pretrained=True)
         calc_diff(model_tlx, model_pd, image_file)
 
-    # not pass
+    # pass - mobilenetv1 & mobilenetv2
     def test_mobilenet(self):
         from models.vision import tlx_mobilenetv1, tlx_mobilenetv2, tlx_mobilenetv3
         from models.vision import pd_mobilenetv1, pd_mobilenetv2, pd_mobilenetv3
@@ -117,6 +128,7 @@ class InferenceModelDiffTest(unittest.TestCase):
         model_pd = pd_mobilenetv2.mobilenet_v2(pretrained=True)
         calc_diff(model_tlx, model_pd, image_file)
 
+        # TODO - not pass - hardswish os not exist!
         # model_tlx = tlx_mobilenetv3.mobilenet_v3_small(pretrained=True)
         # model_pd = tlx_mobilenetv3.mobilenet_v3_small(pretrained=True)
         # calc_diff(model_tlx, model_pd, image_file)
@@ -125,15 +137,6 @@ class InferenceModelDiffTest(unittest.TestCase):
         # model_pd = pd_mobilenetv3.mobilenet_v3_large(pretrained=True)
         # calc_diff(model_tlx, model_pd, image_file)
 
-    def test_inception(self):
-        from models.vision import tlx_inceptionv3
-
-        image_file = "images/dog.jpeg"
-        model_tlx = tlx_inceptionv3.inception_v3(pretrained=True)
-        model_pd = tlx_inceptionv3.inception_v3(pretrained=True)
-        calc_diff(model_tlx, model_pd, image_file)
-
-    # pass
     def test_shufflenet(self):
         from models.vision import tlx_shufflenetv2, pd_shufflenetv2
 
@@ -184,6 +187,23 @@ class InferenceModelDiffTest(unittest.TestCase):
 
         model_tlx = tlx_rednet.RedNet101(pretrained=True)
         model_pd = pd_rednet.RedNet101(pretrained=True)
+        calc_diff(model_tlx, model_pd, image_file)
+
+    def test_regnet(self):
+        from models.vision import tlx_regnet, pd_regnet
+
+        image_file = "images/dog.jpeg"
+        model_tlx = tlx_regnet.RegNetX_4GF(pretrained=True)
+        model_pd = pd_regnet.RegNetX_4GF(pretrained=True)
+        calc_diff(model_tlx, model_pd, image_file)
+
+    # not pass
+    def test_tnt(self):
+        from models.vision import tlx_tnt, pd_tnt
+
+        image_file = "images/dog.jpeg"
+        model_tlx = tlx_tnt.TNT_small(pretrained=True)
+        model_pd = pd_tnt.TNT_small(pretrained=True)
         calc_diff(model_tlx, model_pd, image_file)
 
 

@@ -26,6 +26,7 @@ from paddle.nn import Conv2D, MaxPool2D
 from paddle.nn.initializer import Uniform
 from paddle.fluid.param_attr import ParamAttr
 from paddle.utils.download import get_weights_path_from_url
+from utils.load_model_pd import get_param_pd
 
 model_urls = {
     "alexnet": (
@@ -148,10 +149,10 @@ class AlexNet(nn.Layer):
 
         if self.num_classes > 0:
             x = paddle.flatten(x, start_axis=1, stop_axis=-1)
-            x = self._drop1(x)
+            # x = self._drop1(x)  # TODO - comment this line
             x = self._fc6(x)
             x = F.relu(x)
-            x = self._drop2(x)
+            # x = self._drop2(x)
             x = self._fc7(x)
             x = F.relu(x)
             x = self._fc8(x)
@@ -168,6 +169,7 @@ def _alexnet(arch, pretrained, **kwargs):
         weight_path = get_weights_path_from_url(model_urls[arch][0],
                                                 model_urls[arch][1])
 
+        get_param_pd(model)  # add
         param = paddle.load(weight_path)
         model.load_dict(param)
 

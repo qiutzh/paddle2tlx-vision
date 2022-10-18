@@ -22,7 +22,7 @@ from paddle.utils.download import get_weights_path_from_url
 # from ..ops import ConvNormActivation
 from models.vision.utils.common_func import _make_divisible
 from models.vision.ops.ops_fusion_tlx import ConvNormActivation
-from utils.load_model import restore_model
+from utils.load_model_tlx import restore_model
 
 __all__ = []
 

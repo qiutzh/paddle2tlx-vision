@@ -130,7 +130,7 @@ class InceptionA(nn.Layer):
                                                    activation_layer=nn.ReLU)
 
     def forward(self, x):
-        branch1x1 = self.branch1x1(x)
+        branch1x1 = self.branch1x1(x)  # TODO - result is diff
         branch5x5 = self.branch5x5_1(x)
         branch5x5 = self.branch5x5_2(branch5x5)
 
@@ -500,7 +500,7 @@ class InceptionV3(nn.Layer):
 
         if self.num_classes > 0:
             x = paddle.reshape(x, shape=[-1, 2048])
-            x = self.dropout(x)
+            # x = self.dropout(x)
             x = self.fc(x)
         return x
 

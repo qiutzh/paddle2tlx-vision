@@ -106,6 +106,7 @@ class InvertedResidualConfig:
             self.activation_layer = nn.ReLU
         elif activation == "hardswish":
             self.activation_layer = nn.Hardswish  # TODO - this op not exist in tlx
+            self.activation_layer = paddle.nn.Hardswish  # use paddle op
         else:
             raise RuntimeError(
                 "The activation function is not supported: {}".format(
@@ -152,6 +153,7 @@ class InvertedResidual(nn.Module):
                                             _make_divisible(expanded_channels //
                                                             4),
                                             scale_activation=nn.Hardsigmoid)
+                                            # scale_activation=paddle.nn.Hardsigmoid)
 
         self.linear_conv = ConvNormActivation(in_channels=expanded_channels,
                                               out_channels=out_channels,
@@ -215,6 +217,7 @@ class MobileNetV3(nn.Module):
                                        padding=1,
                                        groups=1,
                                        activation_layer=nn.Hardswish,  # TODO
+                                       # activation_layer=paddle.nn.Hardswish,
                                        norm_layer=norm_layer)
 
         self.blocks = nn.Sequential(*[
@@ -237,6 +240,7 @@ class MobileNetV3(nn.Module):
             groups=1,
             norm_layer=norm_layer,
             activation_layer=nn.Hardswish)
+            # activation_layer=paddle.nn.Hardswish)
 
         if with_pool:
             # self.avgpool = nn.AdaptiveAvgPool2D(1)
@@ -246,6 +250,7 @@ class MobileNetV3(nn.Module):
             self.classifier = nn.Sequential(
                 nn.Linear(in_features=self.lastconv_out_channels, out_features=self.last_channel),
                 nn.Hardswish(),  # TODO - this op is not exist in tlx
+                # paddle.nn.Hardswish(),
                 nn.Dropout(p=0.2),
                 nn.Linear(in_features=self.last_channel, out_features=num_classes))
 

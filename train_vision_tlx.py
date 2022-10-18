@@ -1,10 +1,7 @@
 # coding: utf-8
-# import paddle
 import os
 import random
-
 import paddle
-
 os.environ['TL_BACKEND'] = 'paddle'
 # import paddle.nn.functional as F
 import tensorlayerx as tlx
@@ -131,30 +128,36 @@ class ModelTrainTLX(object):
 
 if __name__ == '__main__':
     from models.vision.tlx_vgg import vgg16
-    from models.vision.tlx_googlenet import googlenet
     from models.vision.tlx_alexnet import alexnet
+    from models.vision.tlx_inceptionv3 import inception_v3
+    from models.vision.tlx_inception_v4 import InceptionV4
+    from models.vision.tlx_googlenet import googlenet
     from models.vision.tlx_squeezenet import squeezenet1_0
+    from models.vision.tlx_mobilenetv1 import mobilenet_v1
+    from models.vision.tlx_mobilenetv2 import mobilenet_v2
+    from models.vision.tlx_shufflenetv2 import shufflenet_v2_x1_0
     from models.vision.tlx_resnet import resnet50
     from models.vision.tlx_densenet import densenet121
-    from models.vision.tlx_mobilenetv1 import mobilenet_v1
-    from models.vision.tlx_inceptionv3 import inception_v3
-    from models.vision.tlx_shufflenetv2 import shufflenet_v2_x1_0
+    from models.vision.tlx_rednet import RedNet50
+    from models.vision.tlx_darknet53 import darknet53
+    from models.vision.tlx_regnet import RegNetX_4GF
 
     # pass
     # model = vgg16(pretrained=False, num_classes=2)
     # model = vgg16(pretrained=True, num_classes=2)  # need to freeze network parameters and modify classifier output
-    # model = googlenet(pretrained=False, num_classes=2)
     # model = alexnet(pretrained=False, num_classes=2)
+    # model = inception_v3(pretrained=False, num_classes=2)
+    # model = InceptionV4(pretrained=False, num_classes=2)
+    # model = googlenet(pretrained=False, num_classes=2)
     # model = squeezenet1_0(pretrained=False, num_classes=2)
+    # model = mobilenet_v1(pretrained=False, num_classes=2)
+    # model = mobilenet_v2(pretrained=False, num_classes=2)
+    # model = shufflenet_v2_x1_0(pretrained=False, num_classes=2)
     # model = resnet50(pretrained=False, num_classes=2)
     # model = densenet121(pretrained=False, num_classes=2)
-
-    # pass yet
-    # model = mobilenet_v1(pretrained=False, num_classes=2)
-
-    # not pass
-    # model = inception_v3(pretrained=False, num_classes=2)
-    model = shufflenet_v2_x1_0(pretrained=False, num_classes=2)
+    # model = RedNet50(pretrained=False, num_classes=2)
+    # model = darknet53(pretrained=False, num_classes=2)
+    model = RegNetX_4GF(pretrained=False, num_classes=2)
 
     Train = ModelTrainTLX(model)
     Train.train()

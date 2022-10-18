@@ -32,7 +32,7 @@ from tensorlayerx.nn import Conv2d, MaxPool2d
 from tensorlayerx.nn.initializers import random_uniform
 # from paddle.fluid.param_attr import ParamAttr
 from paddle.utils.download import get_weights_path_from_url
-from utils.load_model import restore_model
+from utils.load_model_tlx import restore_model
 
 model_urls = {
     "alexnet": (
@@ -210,10 +210,10 @@ class AlexNet(nn.Module):
         if self.num_classes > 0:
             # x = paddle.flatten(x, start_axis=1, stop_axis=-1)
             x = nn.Flatten()(x)
-            x = self._drop1(x)
+            # x = self._drop1(x)
             x = self._fc6(x)
             x = F.relu(x)
-            x = self._drop2(x)
+            # x = self._drop2(x)
             x = self._fc7(x)
             x = F.relu(x)
             x = self._fc8(x)

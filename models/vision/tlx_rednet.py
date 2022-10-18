@@ -16,19 +16,15 @@
 # reference: https://arxiv.org/abs/2103.06255
 import os
 os.environ['TL_BACKEND'] = 'paddle'
-# os.environ['TL_BACKEND'] = 'torch'
 import paddle
 import paddle.nn.functional as F
-from paddle.utils.download import get_weights_path_from_url
-
 import tensorlayerx as tlx
 import tensorlayerx.nn as nn
-
-from utils.load_model import restore_model
+from paddle.utils.download import get_weights_path_from_url
+from utils.load_model_tlx import restore_model
 from models.vision.tlx_resnet import BottleneckBlock, ResNet
 from collections import OrderedDict
 
-# from ...utils.save_load import load_dygraph_pretrain, load_dygraph_pretrain_from_url
 
 MODEL_URLS = {
     "RedNet26":
@@ -75,18 +71,18 @@ class Involution(nn.Module):
                 out_channels=channels // reduction_ratio,
                 kernel_size=1,
                 b_init=None,
-                padding=0, # 不确定padding为1、0、same
+                padding=0,
                 data_format='channels_first')),
             ('bn', nn.BatchNorm2d(num_features=channels // reduction_ratio, data_format='channels_first')),
             ('activate', nn.ReLU())]))
         self.conv2 = nn.Sequential(OrderedDict([
             ('conv', nn.Conv2d(
-            in_channels=channels // reduction_ratio,
-            out_channels=kernel_size ** 2 * self.groups,
-            kernel_size=1,
-            stride=1,
-            padding=0, # 不确定padding为1、0、same
-            data_format='channels_first'
+                in_channels=channels // reduction_ratio,
+                out_channels=kernel_size ** 2 * self.groups,
+                kernel_size=1,
+                stride=1,
+                padding=0,
+                data_format='channels_first'
             ))]))
         if stride > 1:
             # self.avgpool = nn.AvgPool2D(stride, stride)
@@ -102,7 +98,7 @@ class Involution(nn.Module):
         # out = nn.functional.unfold(x, self.kernel_size, self.stride,
         #                            (self.kernel_size - 1) // 2, 1)
         out = F.unfold(x, self.kernel_size, self.stride,
-                                   (self.kernel_size - 1) // 2, 1)
+                                   (self.kernel_size - 1) // 2, 1)  # this op is not exist in tlx
         out = out.reshape(
             (b, self.groups, self.group_channels, self.kernel_size**2, h, w))
         out = (weight * out).sum(axis=3).reshape((b, self.channels, h, w))
@@ -127,9 +123,9 @@ class BottleneckBlock(BottleneckBlock):
 
 
 class RedNet(ResNet):
-    def __init__(self, block, depth, class_num=1000, with_pool=True):
+    def __init__(self, block, depth, num_classes=1000, with_pool=True):
         super(RedNet, self).__init__(
-            block=block, depth=50, num_classes=class_num, with_pool=with_pool)
+            block=block, depth=50, num_classes=num_classes, with_pool=with_pool)
         layer_cfg = {
             26: [1, 2, 4, 1],
             38: [2, 3, 5, 2],
@@ -143,7 +139,7 @@ class RedNet(ResNet):
         self.bn1 = None
         self.relu = None
         self.inplanes = 64
-        self.class_num = class_num
+        self.num_classes = num_classes
         self.stem = nn.Sequential([
             nn.Sequential(OrderedDict([
                 ('conv', nn.Conv2d(
@@ -178,7 +174,7 @@ class RedNet(ResNet):
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
-        # self.flatten5 = nn.Flatten()
+
     def forward(self, x):
         x = self.stem(x)
         x = self.maxpool(x)
@@ -192,18 +188,14 @@ class RedNet(ResNet):
         if self.with_pool:
             x = self.avgpool(x)
 
-        if self.class_num > 0:
-            # x = paddle.flatten(x, 1)
-            # x = self.flatten5(x)
-            shape = x.shape
-            x = tlx.reshape(x, [-1, shape[1] * shape[2] * shape[3]])  # TODO
+        if self.num_classes > 0:
+            x = nn.Flatten()(x)
             x = self.fc(x)
 
         return x
 
 
 def _load_pretrained(pretrained, model, model_url):
-
     # print(paddle.summary(model,[(1, 3, 224, 224)]))
     if pretrained is False:
         pass
@@ -243,42 +235,3 @@ def RedNet152(pretrained=False, **kwargs):
     model = RedNet(BottleneckBlock, 152, **kwargs)
     _load_pretrained(pretrained, model, MODEL_URLS["RedNet152"])
     return model
-
-import numpy as np
-from PIL import Image
-def load_image_nchw(image_path):
-    """ data format: nchw """
-    img = Image.open(image_path)
-    img = img.resize((224, 224), Image.ANTIALIAS)
-    img = np.array(img).astype(np.float32)
-    # PIL打开图片存储顺序为H(高度)，W(宽度)，C(通道)。PaddlePaddle要求数据顺序为CHW，所以需要转换顺序。
-    img = img.transpose((2, 0, 1))  # CHW
-    # CIFAR训练图片通道顺序为B(蓝),G(绿),R(红), 而PIL打开图片默认通道顺序为RGB,因为需要交换通道。
-    img = img[(2, 1, 0), :, :]  # BGR
-    img = np.expand_dims(img, 0)
-    # # img = img.flatten()
-    img = img / 255.0
-    # img = to_tensor(img)
-    img = tlx.convert_to_tensor(img)
-    return img
-
-
-if __name__ == "__main__":
-
-
-    model = RedNet50(pretrained=True)
-    # model = resnet18(pretrained=False)
-    model.set_eval()
-    # for w in model.trainable_weights:
-        # print(w.name, w.shape)
-    #     print(w)
-
-    x = load_image_nchw("../../images/dog.jpeg")
-    print(x.shape)
-    # print(x)
-    out = model(x)
-
-    file_path = '../../images/imagenet_classes.txt'
-    with open(file_path) as f:
-        classes = [line.strip() for line in f.readlines()]
-    print(classes[np.argmax(out[0])])

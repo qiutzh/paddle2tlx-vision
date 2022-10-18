@@ -20,17 +20,20 @@ import os
 os.environ['TL_BACKEND'] = 'paddle'
 import math
 import paddle
+import tensorlayerx as tlx
 # import paddle.nn as nn
 import tensorlayerx.nn as nn
 # from paddle.nn import Linear, Dropout
 from tensorlayerx.nn import Linear, Dropout
 # from paddle.nn import AdaptiveAvgPool2D, MaxPool2D, AvgPool2D
-from tensorlayerx.nn import AdaptiveMeanPool2d, AdaptiveAvgPool2d, MaxPool2d, MeanPool2d, AvgPool2d
-from paddle.fluid.param_attr import ParamAttr
+from tensorlayerx.nn import AdaptiveAvgPool2d, MaxPool2d, AvgPool2d, BatchNorm2d, Sequential, Conv2d, GroupConv2d, ReLU
+# from paddle.fluid.param_attr import ParamAttr
+from tensorlayerx.nn.initializers import random_uniform
 
 from paddle.utils.download import get_weights_path_from_url
 # from ..ops import ConvNormActivation
-from models.vision.ops.ops_fusion_tlx import ConvNormActivation
+# from models.vision.ops.ops_fusion_tlx import ConvNormActivation
+from utils.load_model_tlx import restore_model
 
 __all__ = []
 
@@ -39,6 +42,80 @@ model_urls = {
     ("https://paddle-hapi.bj.bcebos.com/models/inception_v3.pdparams",
      "649a4547c3243e8b59c656f41fe330b8")
 }
+
+
+class ConvNormActivation(Sequential):  # TODO - result is also random!
+    """
+    Configurable block used for Convolution-Normalzation-Activation blocks.
+    This code is based on the torchvision code with modifications.
+    You can also see at https://github.com/pytorch/vision/blob/main/torchvision/ops/misc.py#L68
+    Args:
+        in_channels (int): Number of channels in the input image
+        out_channels (int): Number of channels produced by the Convolution-Normalzation-Activation block
+        kernel_size: (int|list|tuple, optional): Size of the convolving kernel. Default: 3
+        stride (int|list|tuple, optional): Stride of the convolution. Default: 1
+        padding (int|str|tuple|list, optional): Padding added to all four sides of the input. Default: None,
+            in wich case it will calculated as ``padding = (kernel_size - 1) // 2 * dilation``
+        groups (int, optional): Number of blocked connections from input channels to output channels. Default: 1
+        norm_layer (Callable[..., paddle.nn.Layer], optional): Norm layer that will be stacked on top of the convolutiuon layer.
+            If ``None`` this layer wont be used. Default: ``paddle.nn.BatchNorm2D``
+        activation_layer (Callable[..., paddle.nn.Layer], optional): Activation function which will be stacked on top of the normalization
+            layer (if not ``None``), otherwise on top of the conv layer. If ``None`` this layer wont be used. Default: ``paddle.nn.ReLU``
+        dilation (int): Spacing between kernel elements. Default: 1
+        bias (bool, optional): Whether to use bias in the convolution layer. By default, biases are included if ``norm_layer is None``.
+    """
+
+    def __init__(self,
+                 in_channels,
+                 out_channels,
+                 kernel_size=3,
+                 stride=1,
+                 padding=None,
+                 groups=1,
+                 # norm_layer=BatchNorm2D,
+                 norm_layer=BatchNorm2d,
+                 activation_layer=ReLU,
+                 dilation=1,
+                 bias=None):
+        if padding is None:
+            padding = (kernel_size - 1) // 2 * dilation
+        if bias is None:
+            bias = norm_layer is None
+        layers = [
+            # Conv2D(in_channels,
+            #        out_channels,
+            #        kernel_size,
+            #        stride,
+            #        padding,
+            #        dilation=dilation,
+            #        groups=groups,
+            #        bias_attr=bias)
+            Conv2d(in_channels=in_channels,
+                   out_channels=out_channels,
+                   kernel_size=kernel_size,
+                   stride=stride,
+                   padding=padding,
+                   dilation=(dilation, dilation),
+                   # groups=groups,
+                   b_init=bias,
+                   data_format='channels_first')
+            # GroupConv2d(in_channels=in_channels,
+            #             out_channels=out_channels,
+            #             kernel_size=kernel_size,
+            #             stride=stride,
+            #             padding=padding,
+            #             dilation=(dilation, dilation),
+            #             n_group=groups,
+            #             b_init=bias,
+            #             data_format='channels_first',
+            #             )
+        ]
+        if norm_layer is not None:
+            # layers.append(norm_layer(out_channels))
+            layers.append(norm_layer(num_features=out_channels, data_format='channels_first'))
+        if activation_layer is not None:
+            layers.append(activation_layer())
+        super().__init__(*layers)
 
 
 # class InceptionStem(nn.Layer):
@@ -78,7 +155,7 @@ class InceptionStem(nn.Module):
                                               activation_layer=nn.ReLU)
 
     def forward(self, x):
-        x = self.conv_1a_3x3(x)
+        x = self.conv_1a_3x3(x)  # TODO - result is diff
         x = self.conv_2a_3x3(x)
         x = self.conv_2b_3x3(x)
         x = self.max_pool(x)
@@ -151,8 +228,9 @@ class InceptionA(nn.Module):
 
         branch_pool = self.branch_pool(x)
         branch_pool = self.branch_pool_conv(branch_pool)
-        x = paddle.concat([branch1x1, branch5x5, branch3x3dbl, branch_pool],
-                          axis=1)
+        # x = paddle.concat([branch1x1, branch5x5, branch3x3dbl, branch_pool],
+        #                   axis=1)
+        x = tlx.ops.concat([branch1x1, branch5x5, branch3x3dbl, branch_pool], axis=1)
         return x
 
 
@@ -186,7 +264,7 @@ class InceptionB(nn.Module):
                                                  activation_layer=nn.ReLU)
 
         # self.branch_pool = MaxPool2D(kernel_size=3, stride=2)
-        self.branch_pool = MaxPool2d(kernel_size=3, stride=2, data_format='channels_first')
+        self.branch_pool = MaxPool2d(kernel_size=3, stride=2, padding=0, data_format='channels_first')
 
     def forward(self, x):
         branch3x3 = self.branch3x3(x)
@@ -197,7 +275,8 @@ class InceptionB(nn.Module):
 
         branch_pool = self.branch_pool(x)
 
-        x = paddle.concat([branch3x3, branch3x3dbl, branch_pool], axis=1)
+        # x = paddle.concat([branch3x3, branch3x3dbl, branch_pool], axis=1)
+        x = tlx.ops.concat([branch3x3, branch3x3dbl, branch_pool], axis=1)
 
         return x
 
@@ -289,8 +368,9 @@ class InceptionC(nn.Module):
         branch_pool = self.branch_pool(x)
         branch_pool = self.branch_pool_conv(branch_pool)
 
-        x = paddle.concat([branch1x1, branch7x7, branch7x7dbl, branch_pool],
-                          axis=1)
+        # x = paddle.concat([branch1x1, branch7x7, branch7x7dbl, branch_pool],
+        #                   axis=1)
+        x = tlx.ops.concat([branch1x1, branch7x7, branch7x7dbl, branch_pool], axis=1)
 
         return x
 
@@ -335,7 +415,7 @@ class InceptionD(nn.Module):
                                                 activation_layer=nn.ReLU)
 
         # self.branch_pool = MaxPool2D(kernel_size=3, stride=2)
-        self.branch_pool = MaxPool2d(kernel_size=3, stride=2, data_format='channels_first')
+        self.branch_pool = MaxPool2d(kernel_size=3, stride=2, padding=0, data_format='channels_first')
 
     def forward(self, x):
         branch3x3 = self.branch3x3_1(x)
@@ -348,7 +428,8 @@ class InceptionD(nn.Module):
 
         branch_pool = self.branch_pool(x)
 
-        x = paddle.concat([branch3x3, branch7x7x3, branch_pool], axis=1)
+        # x = paddle.concat([branch3x3, branch7x7x3, branch_pool], axis=1)
+        x = tlx.ops.concat([branch3x3, branch7x7x3, branch_pool], axis=1)
         return x
 
 
@@ -422,7 +503,8 @@ class InceptionE(nn.Module):
             self.branch3x3_2a(branch3x3),
             self.branch3x3_2b(branch3x3),
         ]
-        branch3x3 = paddle.concat(branch3x3, axis=1)
+        # branch3x3 = paddle.concat(branch3x3, axis=1)
+        branch3x3 = tlx.ops.concat(branch3x3, axis=1)
 
         branch3x3dbl = self.branch3x3dbl_1(x)
         branch3x3dbl = self.branch3x3dbl_2(branch3x3dbl)
@@ -430,13 +512,15 @@ class InceptionE(nn.Module):
             self.branch3x3dbl_3a(branch3x3dbl),
             self.branch3x3dbl_3b(branch3x3dbl),
         ]
-        branch3x3dbl = paddle.concat(branch3x3dbl, axis=1)
+        # branch3x3dbl = paddle.concat(branch3x3dbl, axis=1)
+        branch3x3dbl = tlx.ops.concat(branch3x3dbl, axis=1)
 
         branch_pool = self.branch_pool(x)
         branch_pool = self.branch_pool_conv(branch_pool)
 
-        x = paddle.concat([branch1x1, branch3x3, branch3x3dbl, branch_pool],
-                          axis=1)
+        # x = paddle.concat([branch1x1, branch3x3, branch3x3dbl, branch_pool],
+        #                   axis=1)
+        x = tlx.ops.concat([branch1x1, branch3x3, branch3x3dbl, branch_pool], axis=1)
         return x
 
 
@@ -483,7 +567,7 @@ class InceptionV3(nn.Module):
 
         self.inception_stem = InceptionStem()
 
-        # self.inception_block_list = nn.LayerList()  # TODO - bug
+        # self.inception_block_list = nn.LayerList()  # TODO - tlx is not supported
         self.inception_block_list = []  # TODO - bug
         for i in range(len(inception_a_list[0])):
             inception_a = InceptionA(inception_a_list[0][i],
@@ -519,20 +603,24 @@ class InceptionV3(nn.Module):
                 in_features=2048,
                 out_features=num_classes,
                 # W_init=ParamAttr(initializer=Uniform(-stdv, stdv)),
-                b_init=ParamAttr()
+                # b_init=ParamAttr()
+                W_init=random_uniform(-stdv, stdv),
+                b_init=False
+                # b_init=tlx.initializers.xavier_uniform()
             )
 
     def forward(self, x):
         x = self.inception_stem(x)
         for inception_block in self.inception_block_list:
-            x = inception_block(x)
+            x = inception_block(x)  # TODO - InceptionA result is diff
 
         if self.with_pool:
             x = self.avg_pool(x)
 
         if self.num_classes > 0:
-            x = paddle.reshape(x, shape=[-1, 2048])
-            x = self.dropout(x)
+            # x = paddle.reshape(x, shape=[-1, 2048])
+            x = tlx.ops.reshape(x, shape=[-1, 2048])
+            # x = self.dropout(x)
             x = self.fc(x)
         return x
 
@@ -571,5 +659,6 @@ def inception_v3(pretrained=False, **kwargs):
                                                 model_urls[arch][1])
 
         param = paddle.load(weight_path)
-        model.set_dict(param)
+        # model.set_dict(param)
+        restore_model(param, model)
     return model

@@ -12,7 +12,6 @@ class PaddleModelTest(unittest.TestCase):
         from models.vision.pd_lenet import LeNet
 
         model = LeNet()
-        model.eval()
         img = paddle.rand([1, 1, 28, 28])
         out = model(img)
         print(np.argmax(out[0]))
@@ -22,20 +21,16 @@ class PaddleModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         # model = vgg11(pretrained=False, batch_norm=False)  # vgg11 model do not have a pretrained model now
-        # model.eval()
         # predict_pd(model, image_file)
 
         # model = vgg13(pretrained=False, batch_norm=False)  # vgg13 model do not have a pretrained model now
-        # model.eval()
         # predict_pd(model, image_file)
 
         model = vgg16(pretrained=True, batch_norm=False)
         # model = vgg16(batch_norm=True)
-        model.eval()
         predict_pd(model, image_file)
 
         # model = vgg19(pretrained=True, batch_norm=False)
-        # model.eval()
         # predict_pd(model, image_file)
 
     def test_alexnet(self):
@@ -43,7 +38,6 @@ class PaddleModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = alexnet(pretrained=True)
-        model.eval()
         predict_pd(model, image_file)
 
     def test_googlenet(self):
@@ -51,7 +45,6 @@ class PaddleModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = googlenet(pretrained=True)
-        model.eval()
         predict_pd(model, image_file)
 
     def test_squeezenet(self):
@@ -59,11 +52,9 @@ class PaddleModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = squeezenet1_0(pretrained=True)
-        model.eval()
         predict_pd(model, image_file)
 
         model = squeezenet1_1(pretrained=True)
-        model.eval()
         predict_pd(model, image_file)
 
     def test_resnet(self):
@@ -71,23 +62,18 @@ class PaddleModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         # model = resnet18(pretrained=True)
-        # model.eval()
         # predict_pd(model, image_file)
 
         # model = resnet34(pretrained=True)
-        # model.eval()
         # predict_pd(model, image_file)
 
         model = resnet50(pretrained=True)
-        model.eval()
         predict_pd(model, image_file)
 
         # model = resnet101(pretrained=True)
-        # model.eval()
         # predict_pd(model, image_file)
         #
         # model = resnet152(pretrained=True)
-        # model.eval()
         # predict_pd(model, image_file)
 
     def test_densenet(self):
@@ -95,23 +81,18 @@ class PaddleModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = densenet121(pretrained=True)
-        model.eval()
         predict_pd(model, image_file)
 
         # model = densenet161(pretrained=True)
-        # model.eval()
         # predict_pd(model, image_file)
         #
         # model = densenet169(pretrained=True)
-        # model.eval()
         # predict_pd(model, image_file)
         #
         # model = densenet201(pretrained=True)
-        # model.eval()
         # predict_pd(model, image_file)
         #
         # model = densenet264(pretrained=True)
-        # model.eval()
         # predict_pd(model, image_file)
 
     def test_mobilenet(self):
@@ -120,30 +101,29 @@ class PaddleModelTest(unittest.TestCase):
         from models.vision.pd_mobilenetv3 import mobilenet_v3_small, mobilenet_v3_large
 
         image_file = "images/dog.jpeg"
-        model = mobilenet_v1(pretrained=True)
-        import paddle
-        print(paddle.summary(model, (1, 3, 224, 224)))
-        model.eval()
-        predict_pd(model, image_file)
+        # model = mobilenet_v1(pretrained=True)
+        # import paddle
+        # print(paddle.summary(model, (1, 3, 224, 224)))
+        # predict_pd(model, image_file)
 
         # model = mobilenet_v2(pretrained=True)
-        # model.eval()
         # predict_pd(model, image_file)
-        #
-        # model = mobilenet_v3_small(pretrained=True)
-        # model.eval()
-        # predict_pd(model, image_file)
-        #
+
+        model = mobilenet_v3_small(pretrained=True)
+        predict_pd(model, image_file)
+
         # model = mobilenet_v3_large(pretrained=True)
-        # model.eval()
         # predict_pd(model, image_file)
 
     def test_inception(self):
         from models.vision.pd_inceptionv3 import inception_v3
+        from models.vision.pd_inception_v4 import InceptionV4
 
         image_file = "images/dog.jpeg"
-        model = inception_v3(pretrained=True)
-        model.eval()
+        # model = inception_v3(pretrained=True)
+        # predict_pd(model, image_file)
+
+        model = InceptionV4(pretrained=True)
         predict_pd(model, image_file)
 
     def test_shufflenet(self):
@@ -153,31 +133,24 @@ class PaddleModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = shufflenet_v2_x0_25(pretrained=True)
-        model.eval()
         predict_pd(model, image_file)
 
         model = shufflenet_v2_x0_33(pretrained=True)
-        model.eval()
         predict_pd(model, image_file)
 
         model = shufflenet_v2_x0_5(pretrained=True)
-        model.eval()
         predict_pd(model, image_file)
 
         model = shufflenet_v2_x1_0(pretrained=True)
-        model.eval()
         predict_pd(model, image_file)
 
         model = shufflenet_v2_x1_5(pretrained=True)
-        model.eval()
         predict_pd(model, image_file)
 
         model = shufflenet_v2_x2_0(pretrained=True)
-        model.eval()
         predict_pd(model, image_file)
 
         model = shufflenet_v2_swish(pretrained=True)
-        model.eval()
         predict_pd(model, image_file)
 
     def test_darknet53(self):
@@ -185,15 +158,33 @@ class PaddleModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = darknet53(pretrained=True)
-        model.eval()
+        predict_pd(model, image_file)
+
+    def test_rednet(self):
+        from models.vision.pd_rednet import RedNet50
+
+        image_file = "images/dog.jpeg"
+        model = RedNet50(pretrained=True)
+        predict_pd(model, image_file)
+
+    def test_regnet(self):
+        from models.vision.pd_regnet import RegNetX_4GF
+
+        image_file = "images/dog.jpeg"
+        model = RegNetX_4GF(pretrained=True)
+        predict_pd(model, image_file)
+
+    def test_tnt(self):
+        from models.vision.pd_tnt import TNT_small
+
+        image_file = "images/dog.jpeg"
+        model = TNT_small(pretrained=True)
         predict_pd(model, image_file)
 
 
 class TLXModelTest(unittest.TestCase):
     # pass
     def test_lenet(self):
-        import os
-        os.environ['TL_BACKEND'] = 'paddle'  # config paddle as backend in first
         import tensorlayerx as tlx
         from models.vision.tlx_lenet import LeNet
 
@@ -209,20 +200,16 @@ class TLXModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         # model = vgg11(pretrained=False, batch_norm=False)  # vgg11 model do not have a pretrained model now
-        # model.set_eval()
         # predict_tlx(model, image_file)
         #
         # model = vgg13(pretrained=False, batch_norm=False)  # vgg13 model do not have a pretrained model now
-        # model.set_eval()
         # predict_tlx(model, image_file)
 
         model = vgg16(pretrained=True, batch_norm=False)
         # model = vgg16(batch_norm=True)  # TODO vgg16_bn model do not have a pretrained model now
-        model.set_eval()
         predict_tlx(model, image_file)
 
         # model = vgg19(pretrained=True, batch_norm=False)
-        # model.set_eval()
         # predict_tlx(model, image_file)
 
     def test_alexnet(self):
@@ -230,7 +217,17 @@ class TLXModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = alexnet(pretrained=True)
-        model.set_eval()
+        predict_tlx(model, image_file)
+
+    def test_inception(self):
+        from models.vision.tlx_inceptionv3 import inception_v3
+        from models.vision.tlx_inception_v4 import InceptionV4
+
+        image_file = "images/dog.jpeg"
+        # model = inception_v3(pretrained=True)
+        # predict_tlx(model, image_file)  # result is random
+
+        model = InceptionV4(pretrained=True)
         predict_tlx(model, image_file)
 
     def test_googlenet(self):
@@ -238,7 +235,6 @@ class TLXModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = googlenet(pretrained=True)
-        model.set_eval()
         predict_tlx(model, image_file)
 
     def test_squeezenet(self):
@@ -246,11 +242,9 @@ class TLXModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = squeezenet1_0(pretrained=True)
-        model.set_eval()
         predict_tlx(model, image_file)
 
         model = squeezenet1_1(pretrained=True)
-        model.set_eval()
         predict_tlx(model, image_file)
 
     def test_resnet(self):
@@ -258,23 +252,18 @@ class TLXModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         # model = resnet18(pretrained=True)
-        # model.set_eval()
         # predict_tlx(model, image_file)
 
         # model = resnet34(pretrained=True)
-        # model.set_eval()
         # predict_tlx(model, image_file)
 
         model = resnet50(pretrained=True)
-        model.set_eval()
         predict_tlx(model, image_file)
 
         # model = resnet101(pretrained=True)
-        # model.set_eval()
         # predict_tlx(model, image_file)
         #
         # model = resnet152(pretrained=True)
-        # model.set_eval()
         # predict_tlx(model, image_file)
 
     def test_densenet(self):
@@ -282,23 +271,18 @@ class TLXModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = densenet121(pretrained=True)
-        model.set_eval()
         predict_tlx(model, image_file)
 
         # model = densenet161(pretrained=True)
-        # model.set_eval()
         # predict_tlx(model, image_file)
         #
         # model = densenet169(pretrained=True)
-        # model.set_eval()
         # predict_tlx(model, image_file)
         #
         # model = densenet201(pretrained=True)
-        # model.set_eval()
         # predict_tlx(model, image_file)
         #
         # model = densenet264(pretrained=True)
-        # model.set_eval()
         # predict_tlx(model, image_file)
 
     def test_mobilenet(self):
@@ -307,31 +291,18 @@ class TLXModelTest(unittest.TestCase):
         from models.vision.tlx_mobilenetv3 import mobilenet_v3_small, mobilenet_v3_large
 
         image_file = "images/dog.jpeg"
-        model = mobilenet_v1(pretrained=True)
-        # import paddle
-        # print(paddle.summary(model, (1, 3, 224, 224)))
-        model.set_eval()
-        predict_tlx(model, image_file)
-
-        model = mobilenet_v2(pretrained=True)
-        model.set_eval()
-        predict_tlx(model, image_file)
-
-        # model = mobilenet_v3_small(pretrained=True)
-        # model.set_eval()
+        # model = mobilenet_v1(pretrained=True)
+        # # import paddle
+        # # print(paddle.summary(model, (1, 3, 224, 224)))
         # predict_tlx(model, image_file)
         #
-        # model = mobilenet_v3_large(pretrained=True)
-        # model.set_eval()
+        # model = mobilenet_v2(pretrained=True)
         # predict_tlx(model, image_file)
 
-    # not pass
-    def test_inception(self):
-        from models.vision.tlx_inceptionv3 import inception_v3
+        model = mobilenet_v3_small(pretrained=True)
+        predict_tlx(model, image_file)
 
-        image_file = "images/dog.jpeg"
-        model = inception_v3(pretrained=True)
-        model.set_eval()
+        model = mobilenet_v3_large(pretrained=True)
         predict_tlx(model, image_file)
 
     def test_shufflenet(self):
@@ -341,31 +312,24 @@ class TLXModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = shufflenet_v2_x0_25(pretrained=True)
-        model.set_eval()
         predict_tlx(model, image_file)
 
         model = shufflenet_v2_x0_33(pretrained=True)
-        model.set_eval()
         predict_tlx(model, image_file)
 
         model = shufflenet_v2_x0_5(pretrained=True)
-        model.set_eval()
         predict_tlx(model, image_file)
 
         model = shufflenet_v2_x1_0(pretrained=True)
-        model.set_eval()
         predict_tlx(model, image_file)
 
         model = shufflenet_v2_x1_5(pretrained=True)
-        model.set_eval()
         predict_tlx(model, image_file)
 
         model = shufflenet_v2_x2_0(pretrained=True)
-        model.set_eval()
         predict_tlx(model, image_file)
 
         model = shufflenet_v2_swish(pretrained=True)
-        model.set_eval()
         predict_tlx(model, image_file)
 
     def test_darknet53(self):
@@ -373,7 +337,6 @@ class TLXModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = darknet53(pretrained=True)
-        model.set_eval()
         predict_tlx(model, image_file)
 
     def test_rednet(self):
@@ -381,7 +344,20 @@ class TLXModelTest(unittest.TestCase):
 
         image_file = "images/dog.jpeg"
         model = RedNet50(pretrained=True)
-        model.set_eval()
+        predict_tlx(model, image_file)
+
+    def test_regnet(self):
+        from models.vision.tlx_regnet import RegNetX_4GF
+
+        image_file = "images/dog.jpeg"
+        model = RegNetX_4GF(pretrained=True)
+        predict_tlx(model, image_file)
+
+    def test_tnt(self):
+        from models.vision.tlx_tnt import TNT_small
+
+        image_file = "images/dog.jpeg"
+        model = TNT_small(pretrained=True)
         predict_tlx(model, image_file)
 
 

@@ -1,16 +1,11 @@
-# from __future__ import absolute_import
-# from __future__ import division
 import os
+import math
+import paddle
 os.environ['TL_BACKEND'] = 'paddle'
-
 import tensorlayerx as tlx
 import tensorlayerx.nn as nn
-
 from paddle.utils.download import get_weights_path_from_url
-import paddle
-from utils.load_model import restore_model
-import math
-
+from utils.load_model_tlx import restore_model
 
 MODEL_URLS = {
     "DarkNet53":
@@ -82,7 +77,7 @@ class BasicBlock(nn.Module):
 
 
 class DarkNet(nn.Module):
-    def __init__(self, class_num=1000):
+    def __init__(self, num_classes=1000):
         super(DarkNet, self).__init__()
 
         self.stages = [1, 2, 8, 8, 4]
@@ -131,7 +126,7 @@ class DarkNet(nn.Module):
         stdv = 1.0 / math.sqrt(1024.0)
         self._out = tlx.nn.Linear(
             in_features=1024,
-            out_features =class_num,
+            out_features =num_classes,
             W_init=tlx.initializers.random_uniform(minval=-0.05, maxval=0.05),
             b_init=tlx.initializers.xavier_uniform())
 

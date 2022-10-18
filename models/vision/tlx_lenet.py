@@ -14,7 +14,7 @@
 
 import os
 os.environ['TL_BACKEND'] = 'paddle'
-import paddle
+# import paddle
 # import paddle.nn as nn
 import tensorlayerx as tlx
 import tensorlayerx.nn as nn

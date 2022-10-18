@@ -1,6 +1,6 @@
 # coding: utf-8
 import os
-os.environ['TL_BACKEND'] = 'paddle'
+os.environ['TL_BACKEND'] = 'paddle'  # config paddle as backend in first
 import numpy as np
 from utils.load_image import load_image
 
@@ -9,6 +9,7 @@ def predict_pd(model, image_file):
     """ paddlepaddle single sample prediction """
     import paddle
 
+    model.eval()
     print('Model name:', f'{model.__class__.__name__}')
     # img = paddle.rand([1, 3, 224, 224])
     img = load_image(image_file, mode="pd")
@@ -34,6 +35,7 @@ def predict_tlx(model, image_file):
     import paddle
     import tensorlayerx as tlx
 
+    model.set_eval()
     print('Model name:', f'{model.__class__.__name__}')
     # print trainable weights
     # for w in model.trainable_weights:

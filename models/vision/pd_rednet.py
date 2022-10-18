@@ -172,19 +172,18 @@ def _load_pretrained(pretrained, model, model_url):
         weight_path = get_weights_path_from_url(model_url)
         # print(weight_path)
         param = paddle.load(weight_path)
+
         # for val in param.items():
         #     print(val[0], val[1].shape)
-        #
-        #
-        # model_state = model.state_dict(use_hook=False).keys()
+        # model_state = list(model.state_dict().keys())
         # print(model_state)
         # pd2tlx_weight = {}
         # for i in range(len(model_state)):
         #     model_key = model_state[i]
-        #
         #     pd2tlx_weight.update({model_key: i})
         # with open('pd2tlx_weight.json', 'w') as f:
         #     f.write(json.dumps(pd2tlx_weight))
+
         model.set_dict(param)
 
 

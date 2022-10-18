@@ -30,7 +30,7 @@ from tensorlayerx.nn import Conv2d, Dropout
 from tensorlayerx.nn import AdaptiveMeanPool2d, AdaptiveAvgPool2d, MaxPool2d
 from paddle.fluid.param_attr import ParamAttr
 from paddle.utils.download import get_weights_path_from_url
-from utils.load_model import restore_model
+from utils.load_model_tlx import restore_model
 
 __all__ = []
 
@@ -227,7 +227,7 @@ class SqueezeNet(nn.Module):
             x = self._conv7(x)
             x = self._conv8(x)
         if self.num_classes > 0:
-            x = self._drop(x)
+            # x = self._drop(x)
             x = self._conv9(x)
         if self.with_pool:
             x = F.relu(x)

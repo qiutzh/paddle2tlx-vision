@@ -31,7 +31,7 @@ from tensorlayerx.nn import AdaptiveMeanPool2d, AdaptiveAvgPool2d, MaxPool2d, Me
 from paddle.nn.initializer import Uniform
 from paddle.fluid.param_attr import ParamAttr
 from paddle.utils.download import get_weights_path_from_url
-from utils.load_model import restore_model
+from utils.load_model_tlx import restore_model
 
 __all__ = []
 

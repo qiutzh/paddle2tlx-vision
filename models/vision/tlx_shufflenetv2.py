@@ -25,7 +25,7 @@ import tensorlayerx as tlx
 # from paddle.nn import AdaptiveAvgPool2D, Linear, MaxPool2D
 from tensorlayerx.nn import AdaptiveAvgPool2d, Linear, MaxPool2d
 from paddle.utils.download import get_weights_path_from_url
-from utils.load_model import restore_model
+from utils.load_model_tlx import restore_model
 
 # from ..ops import ConvNormActivation
 from models.vision.ops.ops_fusion_tlx import ConvNormActivation
